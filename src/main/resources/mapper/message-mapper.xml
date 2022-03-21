@@ -129,4 +129,15 @@
         order by create_time desc
         limit #{offset}, #{limit}
     </select>
+
+    <delete id="deleteLetter" parameterType="int">
+        delete from message where id = #{id}
+    </delete>
+
+    <select id="selectLetterById" resultType="Message">
+        select
+        <include refid="selectFields"/>
+        from message
+        where id = #{id}
+    </select>
 </mapper>

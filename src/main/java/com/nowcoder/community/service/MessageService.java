@@ -64,4 +64,12 @@ public class MessageService {
     public List<Message> findNotices(int userId, String  topic,int offset, int limit){
         return messageMapper.selectNotices(userId, topic, offset, limit);
     }
+
+    public void deleteLetter(int id) {
+        messageMapper.deleteLetter(id);
+    }
+
+    public Message findLetterById(int id) {
+        return messageMapper.selectLetterById(id);
+    }
 }

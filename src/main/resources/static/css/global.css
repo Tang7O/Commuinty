@@ -143,3 +143,50 @@ em {
 	font-style: normal;
 	color: red;
 }
+
+.header-menu-active{
+	color: #32ca99;
+}
+.header-menuitem{
+	cursor: pointer;
+	padding: 0 10px;
+	position: relative;
+	font-size: 16px;
+	margin-top: 10px;
+}
+
+.bg-color{
+	background-color: #25bb9b;
+}
+
+.selected{
+	position: relative;
+	color: #25bb9b;
+}
+.selected::after{
+	content: "";
+	display: block;
+	margin: auto;
+	width: 26px;
+	height: 4px;
+	line-height: 14px;
+	background-color: #32ca99;
+	border-radius: 2px;
+
+}
+.head-forn-active{
+	color: #25bb9b;
+}
+
+.sub-brief{
+	color: #888;
+	font-size: 12px;
+	line-height: 1.6;
+	margin-top: 5px;
+
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+	overflow: hidden;
+
+}

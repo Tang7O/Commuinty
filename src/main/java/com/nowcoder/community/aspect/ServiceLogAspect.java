@@ -5,6 +5,8 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -17,6 +19,8 @@ import java.util.Date;
 @Component
 @Aspect
 public class ServiceLogAspect {
+
+    private static final Logger logger = LoggerFactory.getLogger(ServiceLogAspect.class);
 
     @Pointcut("execution(* com.nowcoder.community.service.*.*(..))")
     public void pointcut() {
@@ -34,7 +38,7 @@ public class ServiceLogAspect {
         String ip = request.getRemoteHost();
         String now = new SimpleDateFormat("yyyy-MM-DD HH:mm:ss").format(new Date());
         String target = joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName();
-        log.info("用户["+ip+"],在["+now+"],访问了["+target+"].");
+        //logger.info("用户["+ip+"],在["+now+"],访问了["+target+"].");
     }
 
 }

@@ -9,12 +9,14 @@
         <outputRelativeToContentRoot value="true" />
         <module name="community" />
         <module name="nowCommunity-master" />
+        <module name="nowCommunity" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="community" options="-parameters" />
+      <module name="nowCommunity" options="-parameters" />
       <module name="nowCommunity-master" options="-parameters" />
     </option>
   </component>

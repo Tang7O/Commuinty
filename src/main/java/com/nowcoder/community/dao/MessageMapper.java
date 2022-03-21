@@ -98,4 +98,8 @@ public interface MessageMapper {
      * @return        返回本页的通知
      */
     List<Message> selectNotices(int userId, String topic, int offset, int limit);
+
+    void deleteLetter(int id);
+
+    Message selectLetterById(int id);
 }

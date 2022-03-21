@@ -14,22 +14,24 @@ public class LikeService {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    // 点赞
     public void like(int userId, int entityType, int entityId, int entityUserId) {
         redisTemplate.execute(new SessionCallback() {
             @Override
             public Object execute(RedisOperations operations) throws DataAccessException {
                 String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType, entityId);
-                String entityUserKey = RedisKeyUtil.getUserLikeKey(entityUserId);
+                String userLikeKey = RedisKeyUtil.getUserLikeKey(entityUserId);
 
                 boolean isMember = operations.opsForSet().isMember(entityLikeKey, userId);
+
                 operations.multi();
 
-                if(isMember) {
+                if (isMember) {
                     operations.opsForSet().remove(entityLikeKey, userId);
-                    operations.opsForValue().decrement(entityUserKey);
+                    operations.opsForValue().decrement(userLikeKey);
                 } else {
-                    operations.opsForSet().add(entityLikeKey,userId);
-                    operations.opsForValue().increment(entityUserKey);
+                    operations.opsForSet().add(entityLikeKey, userId);
+                    operations.opsForValue().increment(userLikeKey);
                 }
 
                 return operations.exec();

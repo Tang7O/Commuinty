@@ -89,7 +89,7 @@ public class MessageController implements CommunityConstant {
         model.addAttribute("target", getLetterTarget(conversationId));
 
         List<Integer> ids = getLetterIds(letterList);
-        System.out.println(ids);
+
         if (!ids.isEmpty()) {
             messageService.readMessage(ids);
         }
@@ -261,5 +261,21 @@ public class MessageController implements CommunityConstant {
 
         return "/site/notice-detail";
         
+    }
+
+
+
+    @RequestMapping(path = "/letter/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public String deleteLetter(int id) {
+        messageService.deleteLetter(id);
+        return CommunityUtil.getJSONString(0);
+    }
+
+    @RequestMapping(path = "/notice/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public String deleteNotice(int id) {
+        messageService.deleteLetter(id);
+        return CommunityUtil.getJSONString(0);
     }
 }

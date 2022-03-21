@@ -7,8 +7,13 @@ import com.nowcoder.community.service.*;
 import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.HostHolder;
+import com.nowcoder.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +44,9 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private EventProducer eventProducer;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
 
     @RequestMapping(path = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -61,6 +69,10 @@ public class DiscussPostController implements CommunityConstant {
                 .setEntityType(ENTITY_TYPE_POST)
                 .setEntityId(post.getId());
         eventProducer.fireEvent(event);
+
+        // 计算帖子分数
+        String redisKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(redisKey, post.getId());
 
         // 报错的情况,将来统一处理.
         return CommunityUtil.getJSONString(0, "发布成功!");
@@ -136,5 +148,82 @@ public class DiscussPostController implements CommunityConstant {
         return "/site/discuss-detail";
     }
 
+    // 置顶
+    @RequestMapping(path = "/top", method = RequestMethod.POST)
+    @ResponseBody
+    public String setTop(int id) {
+        DiscussPost post = discussPostService.findDiscussPostById(id);
+        if(post.getType() == 0)
+            discussPostService.updateType(id,1);
+        else discussPostService.updateType(id,0);
+
+        // 触发发帖事件
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+
+        return CommunityUtil.getJSONString(0);
+    }
+
+    // 加精
+    @RequestMapping(path = "/wonderful", method = RequestMethod.POST)
+    @ResponseBody
+    public String setWonderful(int id) {
+        DiscussPost post = discussPostService.findDiscussPostById(id);
+        if(post.getStatus() == 0)
+            discussPostService.updateStatus(id,1);
+        else discussPostService.updateStatus(id,0);
+        // 触发发帖事件
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+
+        // 计算帖子分数
+        String redisKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(redisKey, id);
+
+        return CommunityUtil.getJSONString(0);
+    }
+
+    // 删除
+    @RequestMapping(path = "/delete", method = RequestMethod.POST)
+    @ResponseBody
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    public String setDelete(int id) {
+        discussPostService.updateStatus(id,2);
+
+        List<Comment> commentList = commentService.findCommentsByEntity(
+                ENTITY_TYPE_POST, id, 0, Integer.MAX_VALUE);
+        if(commentList != null) {
+            for (Comment comment : commentList) {
+                List<Comment> replyList = commentService.findCommentsByEntity(
+                        ENTITY_TYPE_COMMENT, comment.getId(), 0, Integer.MAX_VALUE);
+                commentService.updateStatus(comment.getId(),1);
+                for(Comment c : replyList) {
+                    commentService.updateStatus(c.getId(),1);
+                }
+
+            }
+        }
+
+        // 触发删贴事件
+        Event event = new Event()
+                .setTopic(TOPIC_DELETE)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+
+        return CommunityUtil.getJSONString(0);
+    }
 
 }
+
+
+// 删除文章时，删除响应的评论

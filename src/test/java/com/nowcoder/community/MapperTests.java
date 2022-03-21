@@ -74,13 +74,13 @@ public class MapperTests {
 
     @Test
     public void testSelectPosts(){
-        List<DiscussPost> list = discussPostMapper.selectDiscussPosts(0,1,3);
-        for(DiscussPost post : list){
-            System.out.println(post);
-        }
-
-        int rows = discussPostMapper.selectDiscussPostRows(0);
-        System.out.println(rows);
+//        List<DiscussPost> list = discussPostMapper.selectDiscussPosts(0,1,3);
+//        for(DiscussPost post : list){
+//            System.out.println(post);
+//        }
+//
+//        int rows = discussPostMapper.selectDiscussPostRows(0);
+//        System.out.println(rows);
     }
 
     @Test

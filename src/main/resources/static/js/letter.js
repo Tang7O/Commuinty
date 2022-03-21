@@ -1,7 +1,16 @@
 $(function () {
-    $("#sendBtn").click(send_letter);
     $(".close").click(delete_msg);
 });
+
+function delete_letter(id) {
+    $.post(
+        CONTEXT_PATH + "/letter/delete",
+        {"id":id},
+        function () {
+            window.location.reload();
+        }
+    )
+}
 
 function send_letter() {
     $("#sendModal").modal("hide");
@@ -14,7 +23,7 @@ function send_letter() {
         {"toName": toName, "content": content},
         function (data) {
             data = $.parseJSON(data);
-            if (data.code = 0) {
+            if (data.code === 0) {
                 $("#hintBody").text("发送成功!");
             } else {
                 $("#hintBody").text(data.msg);
